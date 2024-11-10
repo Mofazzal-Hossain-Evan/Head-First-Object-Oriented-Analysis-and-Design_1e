@@ -3,23 +3,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Inventory {
-    private List<Guitar> guitars;
+    private List guitars;
 
     public Inventory() {
-        guitars = new LinkedList<>();
+        guitars = new LinkedList();
     }
 
     public void addGuitar(String serialNumber, double price,
-                          String builder, String model, String type,
-                          String backWood, String topWood) {
+                          Builder builder, String model,
+                          Type type, Wood backWood, Wood topWood) {
         Guitar guitar = new Guitar(serialNumber, price, builder,
                 model, type, backWood, topWood);
         guitars.add(guitar);
     }
 
     public Guitar getGuitar(String serialNumber) {
-        for (Iterator<Guitar> i = guitars.iterator(); i.hasNext(); ) {
-            Guitar guitar = i.next();
+        for (Iterator i = guitars.iterator(); i.hasNext(); ) {
+            Guitar guitar = (Guitar)i.next();
             if (guitar.getSerialNumber().equals(serialNumber)) {
                 return guitar;
             }
@@ -27,32 +27,25 @@ public class Inventory {
         return null;
     }
 
-    public Guitar search(Guitar searchGuitar) {
-        for (Iterator<Guitar> i = guitars.iterator(); i.hasNext(); ) {
-            Guitar guitar = i.next();
-
-            // Ignore serial number and price in the search
-            String builder = searchGuitar.getBuilder();
-            if ((builder != null) && (!builder.equals("")) &&
-                    (!builder.equals(guitar.getBuilder()))) {
+    public List search(GuitarSpec searchSpec) {
+        List matchingGuitars = new LinkedList();
+        for (Iterator i = guitars.iterator(); i.hasNext(); ) {
+            Guitar guitar = (Guitar)i.next();
+            GuitarSpec guitarSpec = guitar.getSpec();
+            if (searchSpec.getBuilder() != guitarSpec.getBuilder())
                 continue;
-            }
-
-            String model = searchGuitar.getModel();
+            String model = searchSpec.getModel().toLowerCase();
             if ((model != null) && (!model.equals("")) &&
-                    (!model.equals(guitar.getModel()))) {
+                    (!model.equals(guitarSpec.getModel().toLowerCase())))
                 continue;
-            }
-
-            String backWood = searchGuitar.getBackWood();
-            if ((backWood != null) && (!backWood.equals("")) &&
-                    (!backWood.equals(guitar.getBackWood()))) {
+            if (searchSpec.getType() != guitarSpec.getType())
                 continue;
-            }
-
-            // Further conditions can be added for other fields like type, model, etc.
-            return guitar;
+            if (searchSpec.getBackWood() != guitarSpec.getBackWood())
+                continue;
+            if (searchSpec.getTopWood() != guitarSpec.getTopWood())
+                continue;
+            matchingGuitars.add(guitar);
         }
-        return null;
+        return matchingGuitars;
     }
 }
